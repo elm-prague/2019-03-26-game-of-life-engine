@@ -23,14 +23,14 @@ type alias World =
 
 
 type CellState
-    = Alive
+    = Alive Int
     | Dead
 
 
 initWorld : World
 initWorld =
     { cells =
-        List.foldl (\{ x, y } cells -> SimpleArray2D.set ( x, y ) Alive cells)
+        List.foldl (\{ x, y } cells -> SimpleArray2D.set ( x, y ) (Alive 0) cells)
             (SimpleArray2D.repeat setup.gridSize setup.gridSize Dead)
             setup.initialAliveCellList
     , isRunning = True
@@ -88,8 +88,8 @@ renderItems world =
     SimpleArray2D.indexedFoldl
         (\( x, y ) cellState list ->
             case cellState of
-                Alive ->
-                    renderItem ( x, y ) :: list
+                Alive age ->
+                    renderItem ( x, y ) age :: list
 
                 Dead ->
                     list
@@ -98,8 +98,8 @@ renderItems world =
         world.cells
 
 
-renderItem : ( Int, Int ) -> Canvas.Renderable
-renderItem ( col, row ) =
+renderItem : ( Int, Int ) -> Int -> Canvas.Renderable
+renderItem ( col, row ) age =
     let
         ( colf, rowf ) =
             ( toFloat col, toFloat row )
@@ -108,10 +108,16 @@ renderItem ( col, row ) =
             ( (rowf * Setup.cellSize) + Setup.cellSize
             , (colf * Setup.cellSize) + Setup.cellSize
             )
+
+        colorComponent =
+            min (toFloat age / 10.0) 0.9
+
+        color =
+            Color.rgb colorComponent colorComponent colorComponent
     in
     Canvas.shapes
-        [ Canvas.fill Color.black ]
-        [ Canvas.circle ( x - Setup.thickness, y - Setup.thickness ) Setup.thickness ]
+        [ Canvas.fill color ]
+        [ Canvas.circle ( x - Setup.thickness, y - Setup.thickness ) (Setup.thickness * (colorComponent + 1)) ]
 
 
 toPx : Float -> String
@@ -174,14 +180,29 @@ getCellsNeighbors cells ( i, j ) item =
 gameRule ( i, j ) ( cell, neighbours ) =
     let
         aliveNeighbours =
-            List.Extra.count ((==) Alive) neighbours
+            List.Extra.count
+                (\c ->
+                    case c of
+                        Alive _ ->
+                            True
+
+                        Dead ->
+                            False
+                )
+                neighbours
     in
     case ( cell, aliveNeighbours ) of
-        ( Alive, 2 ) ->
-            Alive
+        ( Alive 50, _ ) ->
+            Dead
 
-        ( _, 3 ) ->
-            Alive
+        ( Alive age, 2 ) ->
+            Alive <| age + 1
+
+        ( Alive age, 3 ) ->
+            Alive <| age + 1
+
+        ( Dead, 3 ) ->
+            Alive 0
 
         _ ->
             Dead
