@@ -1,0 +1,26 @@
+{
+  "private": true,
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MPL-2.0",
+  "scripts": {
+    "dev": "run-s dev:start",
+    "dev:start": "cross-env BROWSER=none elm-app start",
+    "dev:nodebug": "cross-env ELM_DEBUGGER=false run-s dev",
+    "build": "run-s build:app",
+    "build:app": "elm-app build",
+    "format": "elm-format --yes ./src/ ./tests/",
+    "elm:install": "elm-app install",
+    "test": "elm-app test",
+    "test:watch": "run-s \"test --watch\""
+  },
+  "dependencies": {
+    "elm-canvas": "2.2.0"
+  },
+  "devDependencies": {
+    "create-elm-app": "3.0.6",
+    "cross-env": "5.2.0",
+    "elm-format": "^0.8.1",
+    "npm-run-all": "4.1.5"
+  }
+}
