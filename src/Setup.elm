@@ -6,14 +6,14 @@ import Types exposing (Miliseconds)
 
 setup : Setup
 setup =
-    { tickTime = 500
+    { tickTime = 100
     , height = 500
     , width = 500
     , gridSize = 20
 
     -- , initialAliveCellList = ExampleWorlds.initialStateGlider
-    , initialAliveCellList = ExampleWorlds.initialStateOne
-    -- , initialAliveCellList = ExampleWorlds.initialStateTwo
+    -- , initialAliveCellList = ExampleWorlds.initialStateOne
+    , initialAliveCellList = ExampleWorlds.initialStateTwo
     }
 
 

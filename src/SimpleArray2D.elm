@@ -3,6 +3,7 @@ module SimpleArray2D exposing
     , get
     , getWithDefault
     , indexedFoldl
+    , indexedMap
     , repeat
     , set
     )
@@ -16,6 +17,18 @@ type SimpleArray2D t
 
 
 -- Basic Functions --
+
+
+indexedMap : (( Int, Int ) -> a -> b) -> SimpleArray2D a -> SimpleArray2D b
+indexedMap func (SimpleArray2DInstance numColumns array1d) =
+    let
+        func1d index item =
+            func (indexToColumnRow numColumns index) item
+
+        newArray1d =
+            Array.indexedMap func1d array1d
+    in
+    SimpleArray2DInstance numColumns newArray1d
 
 
 indexedFoldl : (( Int, Int ) -> a -> b -> b) -> b -> SimpleArray2D a -> b
@@ -57,8 +70,12 @@ set coord newValue (SimpleArray2DInstance numColumns array1d) =
 
 
 get : ( Int, Int ) -> SimpleArray2D a -> Maybe a
-get coord (SimpleArray2DInstance numColumns array1d) =
-    Array.get (columnRowToIndex numColumns coord) array1d
+get ( x, y ) (SimpleArray2DInstance numColumns array1d) =
+    if y >= (Array.length array1d // numColumns) || y < 0 || x >= numColumns || x < 0 then
+        Nothing
+
+    else
+        Array.get (columnRowToIndex numColumns ( x, y )) array1d
 
 
 
@@ -79,7 +96,7 @@ indexToColumnRow : Int -> Int -> ( Int, Int )
 indexToColumnRow numColumns index =
     let
         column =
-            remainderBy numColumns index
+            modBy numColumns index
 
         row =
             index // numColumns

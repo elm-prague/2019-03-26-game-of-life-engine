@@ -132,8 +132,7 @@ update msg world =
 
             else
                 ( { world
-                    | cells =
-                        world.cells
+                    | cells = updateCells world.cells
                     , lastTime = time
                   }
                 , Cmd.none
@@ -141,3 +140,48 @@ update msg world =
 
         SetRunning isRunning ->
             ( { world | isRunning = isRunning }, Cmd.none )
+
+
+updateCells : SimpleArray2D CellState -> SimpleArray2D CellState
+updateCells simpleArray =
+    let
+        cellsNeighbors =
+            SimpleArray2D.indexedMap (getCellsNeighbors simpleArray) simpleArray
+    in
+    SimpleArray2D.indexedMap gameRule cellsNeighbors
+
+
+getCellsNeighbors : SimpleArray2D CellState -> ( Int, Int ) -> CellState -> ( CellState, List CellState )
+getCellsNeighbors cells ( i, j ) item =
+    let
+        dirs =
+            [ -1, 0, 1 ]
+
+        indices =
+            dirs
+                |> List.concatMap (\a -> dirs |> List.map (\b -> ( a + i, b + j )))
+                |> List.filter ((/=) ( i, j ))
+    in
+    ( item
+    , List.filterMap
+        (\coords ->
+            SimpleArray2D.get (normalizeCoord coords) cells
+        )
+        indices
+    )
+
+
+gameRule ( i, j ) ( cell, neighbours ) =
+    let
+        aliveNeighbours =
+            List.Extra.count ((==) Alive) neighbours
+    in
+    case ( cell, aliveNeighbours ) of
+        ( Alive, 2 ) ->
+            Alive
+
+        ( _, 3 ) ->
+            Alive
+
+        _ ->
+            Dead
