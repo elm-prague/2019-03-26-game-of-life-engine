@@ -1,4 +1,23 @@
-# Elm App
+# ElmPrague: Game of Life Engine
+
+## Requirement
+
+- Node.js v1O+
+
+## Install
+
+```sh
+npm install --global yarn
+yarn install
+```
+
+## Run Dev Server
+
+```sh
+yarn dev
+```
+
+---
 
 This project is bootstrapped with [Create Elm App](https://github.com/halfzebra/create-elm-app).
 
